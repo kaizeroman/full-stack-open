@@ -8,6 +8,9 @@ const Statistics = ({good, neutral, bad}) => {
   const totalFeedback = () => good+neutral+bad
   const calculateAverage = () => (good - bad)/totalFeedback()
   const calculatePositive = () => (good/totalFeedback())*100
+  if(totalFeedback() === 0){
+    return <p>No feedback given</p>
+  }
   return (
     <>
       <Display name = 'good' number = {good} />
