@@ -9,8 +9,13 @@ const App = () => {
 
   const addName = (event) => {
     event.preventDefault()
-    persons.push({name: newName})
-    setPersons(persons)
+    const exists = persons.some(person => person.name === newName)
+    if(exists) {
+      window.alert(`${newName} is already added to phonebook`)
+    }else{
+      persons.push({name: newName})
+      setPersons(persons)
+    }
     console.log(persons)
     setNewName('')
   }
