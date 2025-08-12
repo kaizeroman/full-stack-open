@@ -3,23 +3,19 @@ import Form from './components/Form'
 import People from './components/People'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import pbservice from './services/Phonebook'
 
 const App = () => {
 
   const [persons, setPersons] = useState([])
 
-  useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(promise => {
-        setPersons(promise.data)
-  })
-  }, [])
+  useEffect(() => { 
+    pbservice.getAllContacts().then(data => setPersons(data))
+   }, [])
 
   const addContact = newContact => {
-    axios
-      .post('http://localhost:3001/persons' , newContact)
-      .then(response => console.log(response.data.name + ' added'))
+    pbservice.addContact(newContact)
+      .then(response => console.log(response.name + ' added'))
   }
 
   const [newName, setNewName] = useState('')
