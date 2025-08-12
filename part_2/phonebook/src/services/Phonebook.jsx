@@ -12,7 +12,13 @@ const addContact = (newContact) => {
     return request.then(response => response.data)
 }
 
+const deleteContact = (id) => {
+    const request = axios.delete(`${baseURL}/${id}`)
+    return request
+}
+
 export default {
     getAllContacts,
-    addContact
+    addContact,
+    deleteContact
 }

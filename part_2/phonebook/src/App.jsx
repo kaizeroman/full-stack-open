@@ -2,7 +2,6 @@ import Search from './components/Search'
 import Form from './components/Form'
 import People from './components/People'
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import pbservice from './services/Phonebook'
 
 const App = () => {
@@ -10,7 +9,7 @@ const App = () => {
   const [persons, setPersons] = useState([])
 
   useEffect(() => { 
-    pbservice.getAllContacts().then(data => setPersons(data))
+    pbservice.getAllContacts().then(data => setPersons(data) )
    }, [])
 
   const addContact = newContact => {
@@ -28,11 +27,10 @@ const App = () => {
     if(exists) {
       window.alert(`${newName} is already added to phonebook`)
     }else{
-      const newContact = {name: newName, number: newNumber, id: persons.length+1}
+      const newContact = {name: newName, number: newNumber, id: (persons.length+1).toString()}
       addContact(newContact)
       setPersons(persons.concat(newContact))
     }
-    console.log(persons)
     setNewName('')
     setNewNumber('')
   }
@@ -51,7 +49,17 @@ const App = () => {
     setFilter(event.target.value)
   }
 
+  const handleDelete = (person) => {
+    if(confirm(`Delete ${person.name} ?`)) {
+      pbservice.deleteContact(person.id).then(
+        setPersons(persons.filter(p => p.id !== person.id))
+      )
+    }
+  }
+
   const filterPerson = filter ? persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase())) : persons
+  console.log("hey")
+  console.log(filterPerson)
 
   return (
     <div>
@@ -60,7 +68,7 @@ const App = () => {
       <h2>Add a new</h2>
       <Form onSubmit = {handleAddPerson} value1 = {newName} change1 = {handleChangeName} value2 = {newNumber} change2 = {handleChangeNumber}/>
       <h2>Numbers</h2>
-      <People filtered = {filterPerson} />
+      <People filtered = {filterPerson} handleDelete={ handleDelete }/>
     </div>
   )
 }
