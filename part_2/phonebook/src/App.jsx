@@ -7,6 +7,9 @@ import pbservice from './services/Phonebook'
 const App = () => {
 
   const [persons, setPersons] = useState([])
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [filter, setFilter] = useState('')
 
   useEffect(() => { 
     pbservice.getAllContacts().then(data => setPersons(data) )
@@ -14,18 +17,21 @@ const App = () => {
 
   const addContact = newContact => {
     pbservice.addContact(newContact)
-      .then(response => console.log(response.name + ' added'))
   }
-
-  const [newName, setNewName] = useState('')
-  const [newNumber, setNewNumber] = useState('')
-  const [filter, setFilter] = useState('')
 
   const handleAddPerson = (event) => {
     event.preventDefault()
-    const exists = persons.some(person => person.name === newName)
+    const exists = persons.find(person => person.name === newName)
     if(exists) {
-      window.alert(`${newName} is already added to phonebook`)
+      const text = `${newName} is already added to phonebook, replace the old number with a new one?`
+      if(window.confirm(text)) {
+        const newContact = {...exists, number:newNumber}
+        pbservice.replaceNumber(exists.id, newContact)
+        .then(response => {
+          setPersons(persons.map(person => person.id === newContact.id ? response.data : person))
+        }
+        )
+      }
     }else{
       const newContact = {name: newName, number: newNumber, id: (persons.length+1).toString()}
       addContact(newContact)
@@ -36,12 +42,10 @@ const App = () => {
   }
 
   const handleChangeName = (event) => {
-    console.log(event.target.value)
     setNewName(event.target.value)
   }
 
   const handleChangeNumber = (event) => {
-    console.log(event.target.value)
     setNewNumber(event.target.value)
   }
 
@@ -58,9 +62,6 @@ const App = () => {
   }
 
   const filterPerson = filter ? persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase())) : persons
-  console.log("hey")
-  console.log(filterPerson)
-
   return (
     <div>
       <h2>Phonebook</h2>

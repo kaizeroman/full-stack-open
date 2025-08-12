@@ -17,8 +17,14 @@ const deleteContact = (id) => {
     return request
 }
 
+const replaceNumber = (id, newContact) => {
+    const request = axios.put(`${baseURL}/${id}`, newContact)
+    return request
+}
+
 export default {
     getAllContacts,
     addContact,
-    deleteContact
+    deleteContact,
+    replaceNumber
 }
