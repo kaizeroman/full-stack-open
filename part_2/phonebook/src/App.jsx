@@ -42,6 +42,9 @@ const App = () => {
           notif('success',  `Changed ${exists.name}'s number`)
         }
         )
+        .catch(() => {
+          notif('error', `Information of ${exists.name} has already been removed from the server`)
+        })
       }
     }else{
       addContact(newPerson)
