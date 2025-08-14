@@ -1,7 +1,7 @@
 const Input = ({value, onChange, keyName}) =>{
     return (
         <div>
-            {keyName}: <input value={value} onChange={onChange}/>
+            {keyName}: <input required value={value} onChange={onChange}/>
         </div>
     )
 }
@@ -14,11 +14,11 @@ const Button = () => {
     )
 }
 
-const Form = ({onSubmit, value1, change1, value2, change2}) => {
+const Form = ({onSubmit, person, change1, change2}) => {
     return (
         <form onSubmit={onSubmit}>
-            <Input value = {value1} onChange= {change1} keyName="name"/>
-            <Input value = {value2} onChange= {change2} keyName="number"/>
+            <Input value = {person.name} onChange= {change1} keyName="name"/>
+            <Input value = {person.number} onChange= {change2} keyName="number"/>
             <Button />
         </form>
     )

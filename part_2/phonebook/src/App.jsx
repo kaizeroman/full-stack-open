@@ -3,50 +3,58 @@ import Form from './components/Form'
 import People from './components/People'
 import { useState, useEffect } from 'react'
 import pbservice from './services/Phonebook'
+import Notification from './components/Notification'
 
 const App = () => {
 
   const [persons, setPersons] = useState([])
-  const [newName, setNewName] = useState('')
-  const [newNumber, setNewNumber] = useState('')
+  const [newPerson, setNewPerson] = useState({name: '', number: ''})
   const [filter, setFilter] = useState('')
+  const [notification, setNotification] = useState(null)
 
   useEffect(() => { 
     pbservice.getAllContacts().then(data => setPersons(data) )
    }, [])
 
+  const notif = (type, text) => {
+    setNotification({type, text})
+    setTimeout(() => {
+      setNotification(null)
+      },4000)
+    }
+
   const addContact = newContact => {
-    pbservice.addContact(newContact)
+    pbservice.addContact(newContact).then((response) => {
+        setPersons(persons.concat(response))
+        notif('success',  `Added ${newContact.name}`)
+      })
   }
 
   const handleAddPerson = (event) => {
     event.preventDefault()
-    const exists = persons.find(person => person.name === newName)
+    const exists = persons.find(person => person.name === newPerson.name)
     if(exists) {
-      const text = `${newName} is already added to phonebook, replace the old number with a new one?`
+      const text = `${newPerson.name} is already added to phonebook, replace the old number with a new one?`
       if(window.confirm(text)) {
-        const newContact = {...exists, number:newNumber}
-        pbservice.replaceNumber(exists.id, newContact)
-        .then(response => {
-          setPersons(persons.map(person => person.id === newContact.id ? response.data : person))
+        pbservice.replaceNumber(exists.id, newPerson)
+        .then(() => {
+          setPersons(persons.map(person => person.id === exists.id ? {...newPerson, id: exists.id} : person))
+          notif('success',  `Changed ${exists.name}'s number`)
         }
         )
       }
     }else{
-      const newContact = {name: newName, number: newNumber, id: (persons.length+1).toString()}
-      addContact(newContact)
-      setPersons(persons.concat(newContact))
+      addContact(newPerson)
     }
-    setNewName('')
-    setNewNumber('')
+    setNewPerson({name: '', number: ''})
   }
 
   const handleChangeName = (event) => {
-    setNewName(event.target.value)
+    setNewPerson({...newPerson, name: event.target.value})
   }
 
   const handleChangeNumber = (event) => {
-    setNewNumber(event.target.value)
+    setNewPerson({...newPerson, number: event.target.value})
   }
 
   const handleSearch = (event) => {
@@ -55,7 +63,7 @@ const App = () => {
 
   const handleDelete = (person) => {
     if(confirm(`Delete ${person.name} ?`)) {
-      pbservice.deleteContact(person.id).then(
+      pbservice.deleteContact(person.id).then(() =>
         setPersons(persons.filter(p => p.id !== person.id))
       )
     }
@@ -65,9 +73,10 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notification={notification}/>
       <Search filter={filter} handleSearch={handleSearch} />
       <h2>Add a new</h2>
-      <Form onSubmit = {handleAddPerson} value1 = {newName} change1 = {handleChangeName} value2 = {newNumber} change2 = {handleChangeNumber}/>
+      <Form onSubmit = {handleAddPerson} person = {newPerson} change1 = {handleChangeName} change2 = {handleChangeNumber}/>
       <h2>Numbers</h2>
       <People filtered = {filterPerson} handleDelete={ handleDelete }/>
     </div>

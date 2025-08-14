@@ -19,6 +19,7 @@ const deleteContact = (id) => {
 
 const replaceNumber = (id, newContact) => {
     const request = axios.put(`${baseURL}/${id}`, newContact)
+    console.log(`${baseURL}/${id}`)
     return request
 }
 
