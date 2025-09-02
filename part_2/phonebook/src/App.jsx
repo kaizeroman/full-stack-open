@@ -37,7 +37,6 @@ const App = () => {
       const text = `${newPerson.name} is already added to phonebook, replace the old number with a new one?`
       if(window.confirm(text)) {
         pbservice.replaceNumber(exists.id, newPerson)
-        .then(() => pbservice.getAllContacts())
         .then(() => {
           setPersons(persons.map(person => person.id === exists.id ? {...newPerson, id: exists.id} : person))
           notif('success',  `Changed ${exists.name}'s number`)
@@ -48,7 +47,7 @@ const App = () => {
         })
       }
     }else{
-      addContact(newPerson).then(() => pbservice.getAllContacts())
+      addContact(newPerson)
     }
     setNewPerson({name: '', number: ''})
   }
@@ -68,7 +67,6 @@ const App = () => {
   const handleDelete = (person) => {
     if(confirm(`Delete ${person.name} ?`)) {
       pbservice.deleteContact(person.id)
-      .then(() => pbservice.getAllContacts())
       .then(() =>
         setPersons(persons.filter(p => p.id !== person.id))
       )
