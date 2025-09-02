@@ -7,10 +7,20 @@ app.use(express.json())
 app.use(cors({
     origin: 'http://localhost:5173'
 }))
-morgan.token('body', (req) => JSON.stringify(req.body))
 
-
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+app.use(morgan((tokens, req, res) =>{
+    const log = [
+        tokens.method(req, res),
+        tokens.url(req,res),
+        tokens.status(req,res),
+        tokens.res(req,res, 'content-length'),
+        '-',
+        tokens['response-time'](req,res),
+        'ms',
+    ].join(' ')
+    console.log(log)
+    return null
+}))
 
 
 let persons = [
@@ -89,7 +99,7 @@ app.post('/api/persons', (request, response) => {
     response.json(person)
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
