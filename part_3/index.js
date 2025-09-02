@@ -36,6 +36,7 @@ let persons = [
     }
 ]
 
+app.get('/', (req, res) => res.send("Phonebook is running!"))
 app.get('/api/persons', (request, response) => {
     response.json(persons)
 })
