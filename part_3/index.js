@@ -1,6 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
+const mongoose = require('mongoose')
 const app = express()
+const Person = require('./models/person')
 
 app.use(express.json())
 app.use(express.static('dist'))
@@ -20,32 +23,16 @@ app.use(morgan((tokens, req, res) =>{
 }))
 
 
-let persons = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
 app.get('/', (req, res) => res.send("Phonebook is running!"))
-app.get('/api/persons', (request, response) => {
-    response.json(persons)
+app.get('/api/persons', async (request, response) => {
+    try{
+        const persons = await Person.find({})
+        response.json(persons)
+    }catch (err) {
+        console.log("error fetching data", err)
+    }finally{
+        await mongoose.connection.close()
+    }
 })
 
 app.get('/info', (request, response) => {
