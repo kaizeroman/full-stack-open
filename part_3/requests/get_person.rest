@@ -1,1 +1,5 @@
-GET https://full-stack-open-arln.onrender.com/api/persons
+### Get person from Render
+GET https://full-stack-open-arln.onrender.com/api/persons/68b81043ca522d21d2091227
+
+### Get person from Localhost
+GET http://localhost:3001/api/persons/68b81043ca522d21d2091227

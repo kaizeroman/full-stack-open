@@ -1,7 +1,17 @@
+### Send to Render
 POST https://full-stack-open-arln.onrender.com/api/persons
 Content-Type: application/json
 
 {
-    "name": "Roysssss Fielding",
+    "name": "Roys Fielding",
+    "number": "030-1234567"
+}
+
+### Send to Local Host
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "Roys Fielding",
     "number": "030-1234567"
 }

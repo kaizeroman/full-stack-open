@@ -1,0 +1,8 @@
+### Get people from Render
+GET https://full-stack-open-arln.onrender.com/api/persons
+
+### Get people from Local Host
+GET http://localhost:3001/api/persons
+
+### Fetch a random enpoint
+GET http://localhost:3001/api/random
