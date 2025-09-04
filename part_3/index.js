@@ -5,8 +5,8 @@ const mongoose = require('mongoose')
 const app = express()
 const Person = require('./models/person')
 
-app.use(express.json())
 app.use(express.static('dist'))
+app.use(express.json())
 
 app.use(morgan((tokens, req, res) =>{
     let log = [
@@ -26,80 +26,86 @@ app.use(morgan((tokens, req, res) =>{
     return null
 }))
 
+const asyncHandler = fn => (req,res,next) => {
+    Promise.resolve(fn(req,res,next)).catch(next)
+}
 
 app.get('/', (req, res) => res.send("Phonebook is running!"))
-app.get('/api/persons', async (request, response) => {
-    try{
-        const people = await Person.find({})
-        response.json(people)
-    }catch (err) {
-        console.log("error fetching data", err)
+
+app.get('/api/persons', asyncHandler(async (request, response) => {
+    const people = await Person.find({})
+    response.json(people)
+}))
+
+app.get('/info', asyncHandler(async (request, response) => {
+    const length = await Person.countDocuments({})
+    response.send(`
+        <p>Phonebook has info for ${length} people</p>
+        <p>${new Date()}</p>
+    `)
+}))
+
+app.get('/api/persons/:id', asyncHandler( async (request, response) => {
+    const id = request.params.id
+    const person = await Person.findById(id)
+    if(!person){
+        return response.status(404).json({error: `Can't find resource with id ${id}`})
     }
-})
+    response.json(person)
+}))
 
-app.get('/info', async (request, response) => {
-    try{
-        const length = await Person.countDocuments({})
-        response.send(
-            `<p>Phonebook has info for ${length} people</p>
-        <p>${new Date()}</p>`
-        )
-    }catch(err) {
-        console.log("Error fetching length of data",err)
+app.delete('/api/persons/:id', asyncHandler(async (request, response) => {
+    const id = request.params.id
+    const deleted = await Person.findByIdAndDelete(id)
+    if(!deleted) {
+        response.status(404).json({error: `Can't find resource with id ${id}`})
     }
-})
+    response.status(204).end()
+}))
 
-app.get('/api/persons/:id', async (request, response) => {
-    try{
-       const id = request.params.id
-        const person = await Person.findById(id)
-        response.json(person)
-    } catch(err) {
-        console.log("Error getting person with id", id, err)
-    }
-})
+app.post('/api/persons', asyncHandler(async (request, response) => {
+    const body = request.body
 
-app.delete('/api/persons/:id', async (request, response) => {
-    try {
-        const id = request.params.id
-        await Person.findByIdAndDelete(id)
-        response.status(204).end()
-    }catch(err) {
-        console.log("Error deleting person with id", id, err)
-    }
-})
-
-app.post('/api/persons', async (request, response) => {
-    try{
-        const body = request.body
-
-        if(!body.name || !body.number) {
-            return response.status(400).json({
-                error: "name or number is missing"
-            })
-        }
-
-        const nameExists = await Person.findOne({name: body.name})
-        if (nameExists) {
-            return response.status(400).json({
-                error: `${body.name} already exists`
-            })
-        }
-
-        const person = new Person({
-            name: body.name,
-            number: body.number,
+    if(!body.name || !body.number) {
+        return response.status(400).json({
+            error: "name or number is missing"
         })
-        
-        const savedPerson = await person.save()
-        response.json(savedPerson)
-    }catch (err){
-        console.log("Error inserting data", err)
-        response.status(500).json({error: "Internal Server Error"})
     }
-})
+
+    const nameExists = await Person.findOne({name: body.name})
+    if (nameExists) {
+        return response.status(409).json({
+            error: `${body.name} already exists`
+        })
+    }
+
+    const person = new Person({
+        name: body.name,
+        number: body.number,
+    })
+        
+    const savedPerson = await person.save()
+    response.status(201).json(savedPerson)
+}))
+
+const unknownEndpoint = (req, res) => {
+    res.status(404).json({error:"Unknown Endpoint"})
+}
+
+app.use(unknownEndpoint)
+
+const errorHandler = (err, req, res, next) => {
+    console.log(err.message)
+    if(err.name === "CastError") {
+        return res.status(400).json({error: "Malformatted ID"})
+    }
+    next(err)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
+
 const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
