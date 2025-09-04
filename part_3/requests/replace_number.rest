@@ -1,5 +1,17 @@
 ### Replace from Render
 PUT https://full-stack-open-arln.onrender.com/api/persons/68b810e5b1bbf05ebfd12305
 
+Content-Type: application/json
+
+{
+  "number": "035-9876543"
+}
+
+
 ### Replace from Local Host
-PUT http://localhost:3001/api/persons/68b810e5b1bbf05ebfd12305
+PUT http://localhost:3001/api/persons/68b81043ca522d21d2091227
+Content-Type: application/json
+
+{
+  "number": "035-9876543"
+}

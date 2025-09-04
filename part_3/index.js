@@ -88,6 +88,21 @@ app.post('/api/persons', asyncHandler(async (request, response) => {
     response.status(201).json(savedPerson)
 }))
 
+app.put('/api/persons/:id', asyncHandler( async (req, res) => {
+    const {id} = req.params
+    const {number} = req.body
+
+    const person = await Person.findByIdAndUpdate(
+        id,
+        { number } ,
+        { new: true, runValidators: true, context: 'query' }
+    )
+    if(!person) {
+        return res.status(404).json({error: `Can't find resource with id ${id}`})
+    }
+    return res.json(person)
+}))
+
 const unknownEndpoint = (req, res) => {
     res.status(404).json({error:"Unknown Endpoint"})
 }
