@@ -27,6 +27,8 @@ const App = () => {
     pbservice.addContact(newContact).then((response) => {
         setPersons(persons.concat(response))
         notif('success',  `Added ${newContact.name}`)
+      }).catch(err =>{
+        notif('error', err.response.data.error)
       })
   }
 
